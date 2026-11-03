@@ -1,0 +1,123 @@
+
+services:
+
+  # ---------------- CAMERA CLIENTS ----------------
+
+  camera_a1:
+    build: ./camera
+    container_name: camera_a1
+    environment:
+      CAMERA_ID: camera_a1
+      FOG_URL: http://fog_a:8000
+    networks:
+      zone_a_net:
+        ipv4_address: 172.20.1.10
+
+  camera_a2:
+    build: ./camera
+    container_name: camera_a2
+    environment:
+      CAMERA_ID: camera_a2
+      FOG_URL: http://fog_a:8000
+    networks:
+      zone_a_net:
+        ipv4_address: 172.20.1.11
+
+  camera_b1:
+    build: ./camera
+    container_name: camera_b1
+    environment:
+      CAMERA_ID: camera_b1
+      FOG_URL: http://fog_b:8000
+    networks:
+      zone_b_net:
+        ipv4_address: 172.20.2.10
+
+  # ---------------- FOG NODES ----------------
+
+  fog_a:
+    build: ./fog
+    container_name: fog_a
+    environment:
+      FOG_ID: fog_a
+      ZONE: zone_a
+    cpus: "0.5"
+    mem_limit: 256m
+    networks:
+      zone_a_net:
+        ipv4_address: 172.20.1.20
+      backbone_net:
+        ipv4_address: 172.20.3.10
+      mgmt_net:
+        ipv4_address: 172.20.4.10
+
+  fog_b:
+    build: ./fog
+    container_name: fog_b
+    environment:
+      FOG_ID: fog_b
+      ZONE: zone_b
+    cpus: "0.5"
+    mem_limit: 256m
+    networks:
+      zone_b_net:
+        ipv4_address: 172.20.2.20
+      backbone_net:
+        ipv4_address: 172.20.3.11
+      mgmt_net:
+        ipv4_address: 172.20.4.11
+
+  # ---------------- CLOUD ----------------
+
+  cloud:
+    build: ./cloud
+    container_name: cloud
+    networks:
+      backbone_net:
+        ipv4_address: 172.20.3.20
+      mgmt_net:
+        ipv4_address: 172.20.4.20
+
+  # ---------------- MONITORING ----------------
+
+  monitoring:
+    build: ./monitoring
+    container_name: monitoring
+    networks:
+      mgmt_net:
+        ipv4_address: 172.20.4.30
+
+# ---------------- NETWORKS ----------------
+
+networks:
+
+  zone_a_net:
+    name: zone_a_net
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.20.1.0/24
+
+  zone_b_net:
+    name: zone_b_net
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.20.2.0/24
+
+  backbone_net:
+    name: backbone_net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.3.0/24
+
+  mgmt_net:
+    name: mgmt_net
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.20.4.0/24
