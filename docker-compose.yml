@@ -1,6 +1,5 @@
 x-fog: &fog
   image: mp3-fog:latest
-  build: { context: ., dockerfile: fog/Dockerfile }
   cpus: "0.5"
   mem_limit: 256m
   cap_add: [NET_ADMIN]   # needed only for tc netem
@@ -8,6 +7,7 @@ x-fog: &fog
 services:
   fog-a:
     <<: *fog
+    build: { context: ., dockerfile: fog/Dockerfile }   # fog-b reuses this image
     environment:
       { ZONE: A, LISTEN_IP: 10.10.1.10, BACKBONE_IP: 10.10.10.11,
         CLOUD_URL: "http://10.10.10.20:8000",
@@ -39,7 +39,7 @@ services:
       mgmt_net: { ipv4_address: 10.10.20.20 }
 
   logger:
-    build: { context: ., dockerfile: logs/Dockerfile }
+    build: { context: ., dockerfile: monitoring/Dockerfile }
     volumes: ["./results/logs:/logs"]
     networks:
       mgmt_net: { ipv4_address: 10.10.20.30 }

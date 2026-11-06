@@ -4,6 +4,6 @@ WORKDIR /app
 
 RUN pip install --no-cache-dir requests
 
-COPY camera.py .
+COPY camera/camera.py .
 
 CMD ["python", "camera.py"]
